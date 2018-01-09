@@ -26,8 +26,9 @@ def process(out, seed):
             f.write(str(out))
 
 def greedy(seed):
-    # do greedy stuff
+    #TODO: Solve the problem
 
     process(0, seed)
 
+# TODO: Randomisation
 greedy('greedy')
