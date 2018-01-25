@@ -1,8 +1,9 @@
-from score import score
 import random
-from random import randint as ri
-import logging as log
 import argparse
+import logging as log
+from random import randint as ri
+from score import score
+from util import mkdir
 
 
 # Runs scoring function and checks if score is improved.
@@ -12,21 +13,23 @@ def process(out, seed):
     try:
         with open(args.testcase + '.max', 'r') as f:
             bsc = int(f.readline())
-    except:
+    except IOError:
         bsc = 0
 
+    fmt = 'Score: {:<20}'
     if sc > bsc:
-        log.critical('New best score {} for testcase {}'.format(sc, args.testcase))
-        fname = '_'.join([args.testcase, str(sc), seed]) + '.ans'
+        log.critical((fmt + " BEST").format(sc))
 
         with open(args.testcase + '.max', 'w') as f:
             f.write(str(sc))
 
+        mkdir('ans')
+        fname = '_'.join([args.testcase, str(sc), seed]) + '.ans'
         with open('ans/' + fname, 'w') as f:
             # Print to f
             f.write(str(out))
     else:
-        log.warn('Score: {}'.format(sc))
+        log.warn(fmt.format(sc))
 
 
 def greedy(seed):
