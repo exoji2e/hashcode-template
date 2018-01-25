@@ -9,8 +9,11 @@ import argparse
 def process(out, seed):
     sc = score(inp, out)
 
-    with open(args.testcase + '.max', 'r') as f:
-        bsc = int(f.readline())
+    try:
+        with open(args.testcase + '.max', 'r') as f:
+            bsc = int(f.readline())
+    except:
+        bsc = 0
 
     if sc > bsc:
         log.critical('New best score {} for testcase {}'.format(sc, args.testcase))
