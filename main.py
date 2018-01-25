@@ -44,7 +44,7 @@ def get_args():
 
 def init_log():
     loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
-    logfmt = '%(relativeCreated)6d %(message)s %(arg.testcase)s'
+    logfmt = '%(relativeCreated)6d %(message)s ' + args.testcase
     log.basicConfig(level=loglvls[args.log], format=logfmt)
 
 
