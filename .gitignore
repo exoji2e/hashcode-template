@@ -2,3 +2,5 @@ __pycache__
 ans/
 .mypy_cache
 *.pyc
+*.max
+submission/
