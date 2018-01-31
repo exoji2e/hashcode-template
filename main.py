@@ -2,13 +2,19 @@ import random
 import argparse
 import logging as log
 from random import randint as ri
-from score import score
 from util import mkdir
 
 
 # Runs scoring function and checks if score is improved.
 def process(out, seed):
-    sc = score(inp, out)
+    scoring = args.scoring.split(":")
+    score_module = scoring[0]
+    score_fun = "score"
+    if len(scoring) > 1:
+        score_fun = scoring[1]
+
+    score = __import__(score_module, globals(), locals(), [], 0)
+    sc = getattr(score, score_fun)(inp, out)
 
     try:
         with open(args.testcase + '.max', 'r') as f:
@@ -45,6 +51,7 @@ def get_args():
     parser.add_argument('-l', '--log', default='debug')
     parser.add_argument('-s', '--seed', default=None)
     parser.add_argument('-n', '--iterations', default=10)
+    parser.add_argument('--scoring', action='store', default="score:score")
     return parser.parse_args()
 
 
