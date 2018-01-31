@@ -2,7 +2,7 @@ import argparse
 import logging as log
 from random import randint as ri
 from util import mkdir
-from os import symlink
+from os import symlink, remove
 
 
 # Runs scoring function and checks if score is improved.
@@ -24,13 +24,15 @@ def process(inp, out, seed, sc_fun):
             f.write(str(sc))
 
         mkdir('ans')
-        fname = '_'.join([args.testcase, str(sc), seed]) + '.ans'
+        fname = '{}_{}_{}.ans'.format(args.testcase, sc, seed)
         fpath = 'ans/' + fname
         with open(fpath, 'w') as f:
             # Print to f
             f.write(str(out))
         mkdir('submission')
-        symlink(fpath, "submission/{}.ans".format(args.testcase))
+        latest = "submission/{}.ans".format(args.testcase)
+        remove(latest)
+        symlink(fpath, latest)
     else:
         log.warn(fmt.format(sc))
 
@@ -40,7 +42,7 @@ def get_args():
     parser.add_argument('testcase')
     parser.add_argument('-l', '--log', default='debug')
     parser.add_argument('-s', '--seed', default=None)
-    parser.add_argument('-n', '--iterations', default=10)
+    parser.add_argument('-n', '--iterations', type=int, default=10)
     parser.add_argument('--nsspec', action='store', default="solve:score:solve")
     return parser.parse_args()
 
