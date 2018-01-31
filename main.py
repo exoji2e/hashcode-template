@@ -1,4 +1,3 @@
-import random
 import argparse
 import logging as log
 from random import randint as ri
@@ -6,15 +5,7 @@ from util import mkdir
 
 
 # Runs scoring function and checks if score is improved.
-def process(out, seed):
-    scoring = args.scoring.split(":")
-    score_module = scoring[0]
-    score_fun = "score"
-    if len(scoring) > 1:
-        score_fun = scoring[1]
-
-    score = __import__(score_module, globals(), locals(), [], 0)
-    sc = getattr(score, score_fun)(inp, out)
+def process(inp, out, seed, sc_fun):
 
     try:
         with open(args.testcase + '.max', 'r') as f:
@@ -22,7 +13,9 @@ def process(out, seed):
     except IOError:
         bsc = 0
 
-    fmt = 'Score: {:<20}'
+    sc = sc_fun(inp, out)
+
+    fmt = 'score: {:<20}'
     if sc > bsc:
         log.critical((fmt + " BEST").format(sc))
 
@@ -38,42 +31,49 @@ def process(out, seed):
         log.warn(fmt.format(sc))
 
 
-def greedy(seed):
-    # TODO: Solve the problem
-    random.seed(seed)
-
-    process(0, seed)
-
-
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('testcase')
     parser.add_argument('-l', '--log', default='debug')
     parser.add_argument('-s', '--seed', default=None)
     parser.add_argument('-n', '--iterations', default=10)
-    parser.add_argument('--scoring', action='store', default="score:score")
+    parser.add_argument('--nsspec', action='store', default="solve:score:solve")
     return parser.parse_args()
 
 
 def init_log():
     loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
-    logfmt = '%(relativeCreated)6d %(message)s ' + args.testcase
+    logfmt = '%(relativeCreated)6d {} %(filename)12s:%(lineno)-3d %(message)s'.format(args.testcase)
     log.basicConfig(level=loglvls[args.log], format=logfmt)
 
 
 if __name__ == '__main__':
     args = get_args()
     init_log()
+    nsspec = args.nsspec.split(":")
+    sol_module = nsspec[0]
+    score_fun_name = "score"
+    solve_fun_name = "solve"
+    if len(nsspec) > 2:
+        score_fun_name = nsspec[1]
+        solve_fun_name = nsspec[2]
+
+    sol = __import__(sol_module, globals(), locals(), [], 0)
+    sc_fn = getattr(sol, score_fun_name)
+    sol_fn = getattr(sol, solve_fun_name)
 
     with open('in/' + args.testcase + '.in') as f:
         inp = f.read()
-        # TODO: Proccess input data
+
+    def run(seed):
+        ans = sol_fn(seed, inp, log)
+        process(inp, ans, seed, sc_fn)
 
     if args.seed:
         log.info('seed: {}'.format(args.seed))
-        greedy(args.seed)
+        run(args.seed)
     else:
         for i in range(args.iterations):
             seed = ri(0, 10000)
-            log.info('seed: {}, test#: {}'.format(seed, i))
-            greedy(seed)
+            log.info('seed:  {:<4}, test#: {}'.format(seed, i))
+            run(args.seed)

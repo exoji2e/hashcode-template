@@ -1,9 +1,17 @@
 import argparse
+import random
 
 
 def score(inp, out):
     # TODO: implement
     return 0
+
+
+def solve(seed, inp, log):
+    # TODO: Solve the problem
+    random.seed(seed)
+
+    return '0'
 
 
 def get_args():
@@ -23,4 +31,3 @@ if __name__ == '__main__':
         ans = f.read()
 
     print(score(inp, ans))
-
