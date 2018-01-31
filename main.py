@@ -2,6 +2,7 @@ import argparse
 import logging as log
 from random import randint as ri
 from util import mkdir
+from os import symlink
 
 
 # Runs scoring function and checks if score is improved.
@@ -24,9 +25,12 @@ def process(inp, out, seed, sc_fun):
 
         mkdir('ans')
         fname = '_'.join([args.testcase, str(sc), seed]) + '.ans'
-        with open('ans/' + fname, 'w') as f:
+        fpath = 'ans/' + fname
+        with open(fpath, 'w') as f:
             # Print to f
             f.write(str(out))
+        mkdir('submission')
+        symlink(fpath, "submission/{}.ans".format(args.testcase))
     else:
         log.warn(fmt.format(sc))
 
