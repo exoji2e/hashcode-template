@@ -8,6 +8,7 @@ from os import link, remove
 # Runs scoring function and checks if score is improved.
 def process(inp, out, seed, sc_fun):
 
+    # Remember to edit if minimization-problem.
     try:
         with open(args.testcase + '.max', 'r') as f:
             bsc = int(f.readline())
@@ -17,6 +18,7 @@ def process(inp, out, seed, sc_fun):
     sc = sc_fun(inp, out)
 
     fmt = 'score: {:<20}'
+    # write new output file.
     if sc > bsc:
         log.critical((fmt + " BEST").format(sc))
 
@@ -27,7 +29,6 @@ def process(inp, out, seed, sc_fun):
         fname = '{}_{}_{}.ans'.format(args.testcase, sc, seed)
         fpath = 'ans/' + fname
         with open(fpath, 'w') as f:
-            # Print to f
             f.write(str(out))
         mkdir('submission')
         latest = "submission/{}.ans".format(args.testcase)
@@ -83,6 +84,6 @@ if __name__ == '__main__':
         run(args.seed)
     else:
         for i in range(args.iterations):
-            seed = ri(0, 10000)
-            log.info('seed:  {:<4}, test#: {}'.format(seed, i))
+            seed = ri(0, 10**6 - 1)
+            log.info('seed:  {:<6}, test#: {}'.format(seed, i))
             run(seed)
