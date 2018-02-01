@@ -2,7 +2,7 @@ import argparse
 import logging as log
 from random import randint as ri
 from util import mkdir
-from os import symlink, remove
+from os import link, remove
 
 
 # Runs scoring function and checks if score is improved.
@@ -31,8 +31,11 @@ def process(inp, out, seed, sc_fun):
             f.write(str(out))
         mkdir('submission')
         latest = "submission/{}.ans".format(args.testcase)
-        remove(latest)
-        symlink(fpath, latest)
+        try:
+            remove(latest)
+        except OSError:
+            pass
+        link(fpath, latest)
     else:
         log.warn(fmt.format(sc))
 
@@ -82,4 +85,4 @@ if __name__ == '__main__':
         for i in range(args.iterations):
             seed = ri(0, 10000)
             log.info('seed:  {:<4}, test#: {}'.format(seed, i))
-            run(args.seed)
+            run(seed)
