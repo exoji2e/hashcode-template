@@ -36,7 +36,8 @@ def process(inp, out, seed, sc_fun):
             remove(latest)
         except OSError:
             pass
-        link(fpath, latest)
+        with open(latest, 'w') as f:
+            f.write(str(out))
     else:
         log.warn(fmt.format(sc))
 

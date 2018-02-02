@@ -1,8 +1,11 @@
 # Template for Google Hash Code
 to make it easier to deploy an incremental approach
 
-## What needs to be done when Hash Code starts?
-- ```score``` function in ```score.py```
-- ```parse``` function to parse the input
-- solve the problem with different approaches. Start inside ```greedy```, in ```main.py```
+Run a testinstance on the format ```in/$testcase.in``` with your own solver by:
 
+```python main.py --nsspec $file:$score:$solve $testcase``` where 
+- ```$file``` is the file with your functions ```$score``` and ```$solve```
+- ```$score``` is the function name of your scoring function
+- ```$solve``` is the function name of your solution function
+
+```main.py``` will handle file-io, save the solution that gets maximal score, set up logging, set up randomization.
