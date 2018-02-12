@@ -2,7 +2,7 @@ import argparse
 import logging as log
 from random import randint as ri
 from util import mkdir
-from os import link, remove
+from os import remove
 
 
 # Runs scoring function and checks if score is improved.
@@ -15,7 +15,13 @@ def process(inp, out, seed, sc_fun):
     except IOError:
         bsc = 0
 
-    sc = sc_fun(inp, out)
+    try:
+        sc = sc_fun(inp, out)
+    except Exception as e:
+        if not args.ignore:
+            raise
+        log.error(str(e))
+        sc = 0
 
     fmt = 'score: {:<20}'
     # write new output file.
@@ -45,10 +51,11 @@ def process(inp, out, seed, sc_fun):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('testcase')
-    parser.add_argument('-l', '--log', default='debug')
-    parser.add_argument('-s', '--seed', default=None)
-    parser.add_argument('-n', '--iterations', type=int, default=10)
-    parser.add_argument('--nsspec', action='store', default="solve:score:solve")
+    parser.add_argument('-l', '--log', default='debug', help="set the log level")
+    parser.add_argument('-s', '--seed', default=None, help="provide a seed for the rng")
+    parser.add_argument('-n', '--iterations', type=int, default=10, help="number of iterations to run the solver")
+    parser.add_argument('-i', '--ignore', action='store_true', help="do not fail on scoring errors")
+    parser.add_argument('--nsspec', action='store', default="solve:score:solve", help="specification of the module and functions used to solve and score")
     return parser.parse_args()
 
 
