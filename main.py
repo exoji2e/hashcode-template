@@ -53,7 +53,7 @@ def get_args():
     parser.add_argument('testcase')
     parser.add_argument('-l', '--log', default='debug', help="set the log level")
     parser.add_argument('-s', '--seed', default=None, help="provide a seed for the rng")
-    parser.add_argument('-n', '--iterations', type=int, default=10, help="number of iterations to run the solver")
+    parser.add_argument('-n', '--iterations', type=int, default=1, help="number of iterations to run the solver")
     parser.add_argument('-i', '--ignore', action='store_true', help="do not fail on scoring errors")
     parser.add_argument('--nsspec', action='store', default="solve:score:solve", help="specification of the module and functions used to solve and score")
     return parser.parse_args()
