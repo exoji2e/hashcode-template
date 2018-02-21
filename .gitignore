@@ -3,4 +3,5 @@ ans/
 .mypy_cache
 *.pyc
 *.max
+*.swp
 submission/
