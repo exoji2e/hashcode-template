@@ -1,3 +1,4 @@
+#!/usr/bin/env pypy2
 import argparse
 import logging as log
 from random import randint as ri
