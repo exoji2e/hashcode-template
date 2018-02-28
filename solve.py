@@ -52,22 +52,21 @@ def in2ans(inp):
 
 if __name__ == '__main__':
     args = get_args()
-    if not args.ans:
-        if '.ans' in args.inp:
-            args.ans = args.inp
-            args.inp = ans2in(args.ans)
-        elif '.in' in args.inp:
-            args.ans = in2ans(args.inp)
-        else:
-            args.inp = args.inp.replace('.max', '')
-            args.ans = 'submission/' + args.inp + '.ans'
-            args.inp = 'in/' + args.inp + '.in'
-
-    if not args.inp and not args.ans:
+    if not args or (not args.inp and not args.ans):
         files = []
         for ans in glob.glob('submission/*.ans'):
             files.append((ans2in(ans), ans))
     else:
+        if not args.ans:
+            if '.ans' in args.inp:
+                args.ans = args.inp
+                args.inp = ans2in(args.ans)
+            elif '.in' in args.inp:
+                args.ans = in2ans(args.inp)
+            else:
+                args.inp = args.inp.replace('.max', '')
+                args.ans = 'submission/' + args.inp + '.ans'
+                args.inp = 'in/' + args.inp + '.in'
         files = [(args.inp, args.ans)]
 
     for inpf, ansf in files:
