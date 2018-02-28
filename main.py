@@ -67,6 +67,7 @@ def init_log():
 
 if __name__ == '__main__':
     args = get_args()
+    args.testcase = args.testcase.replace('in/', '').replace('.in', '').replace('.max', '')
     init_log()
     nsspec = args.nsspec.split(":")
     sol_module = nsspec[0]
