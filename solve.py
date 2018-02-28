@@ -34,14 +34,19 @@ def score(inp, out):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('inp')
-    parser.add_argument('ans')
+    parser.add_argument('-inp', default='')
+    parser.add_argument('-ans', default='')
     parser.add_argument('-s', action='store_true', help="show")
+    parser.add_argument('-t', action='store', help="will look for in/testcase.in and submission/testcase.ans")
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = get_args()
+
+    if args.t:
+        args.inp = 'in/' + args.t + '.in'
+        args.ans = 'submission/' + args.t + '.ans'
 
     with open(args.inp, 'r') as f:
         inp = f.read()
