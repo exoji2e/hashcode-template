@@ -1,5 +1,7 @@
+#!/usr/bin/env pypy2
 import argparse
 import random
+import glob
 
 
 def parse(inp):
@@ -34,19 +36,44 @@ def score(inp, out):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('inp')
-    parser.add_argument('ans')
+    parser.add_argument('inp', nargs='?')
+    parser.add_argument('ans', nargs='?')
     parser.add_argument('-s', action='store_true', help="show")
     return parser.parse_args()
 
 
+def ans2in(ans):
+    return ans.replace('.ans', '.in').replace('submission/', 'in/')
+
+
+def in2ans(inp):
+    return inp.replace('.in', '.ans').replace('in/', 'submission/')
+
+
 if __name__ == '__main__':
     args = get_args()
+    if not args or (not args.inp and not args.ans):
+        files = []
+        for ans in glob.glob('submission/*.ans'):
+            files.append((ans2in(ans), ans))
+    else:
+        if not args.ans:
+            if '.ans' in args.inp:
+                args.ans = args.inp
+                args.inp = ans2in(args.ans)
+            elif '.in' in args.inp:
+                args.ans = in2ans(args.inp)
+            else:
+                args.inp = args.inp.replace('.max', '')
+                args.ans = 'submission/' + args.inp + '.ans'
+                args.inp = 'in/' + args.inp + '.in'
+        files = [(args.inp, args.ans)]
 
-    with open(args.inp, 'r') as f:
-        inp = f.read()
+    for inpf, ansf in files:
+        with open(inpf, 'r') as f:
+            inp = f.read()
+        with open(ansf, 'r') as f:
+            ans = f.read()
 
-    with open(args.ans, 'r') as f:
-        ans = f.read()
-
-    print(score(inp, ans))
+        print('{} {}'.format(inpf, ansf))
+        print(score(inp, ans))
