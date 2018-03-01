@@ -10,7 +10,7 @@ Run a testinstance on the format `in/$testcase.in` with your own solver by:
 
 If you don't give `main` the `--nsspec` argument, the default is set to `solve:score:solve`, so you can just start working in `solve.py`.
 
-`main.py` will handle file-io, save the solution that gets maximal score, set up logging, set up randomization, etc.
+`main.py` will handle file-io, save the solution that gets maximal score to the `submission`-folder, set up logging, set up randomization, etc.
 
 ## Nice to have for the competition:
 - `pypy2` faster execution, because of JiT compilation to C
