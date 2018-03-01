@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     if args.seed:
         log.info('seed: {}'.format(args.seed))
-        run(args.seed)
+        run(int(args.seed))
     else:
         for i in range(args.iterations):
             seed = ri(0, 10**6 - 1)
