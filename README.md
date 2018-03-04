@@ -1,6 +1,11 @@
 # Template for Google Hash Code
 to make it easier to deploy an incremental approach
 
+To see an example of usage of this template 
+(commit [2fe1063](https://github.com/exoji2e/hashcode-template/commit/2fe106309cec654289c73a217df904a509264b59))
+look at Cache Flow's [solution](https://github.com/exoji2e/hashcode2018-qualification)
+to the 2018 qualifier. Most forks are also usages of the template.
+
 Run a testinstance on the format `in/$testcase.in` with your own solver by:
 
 `python main.py --nsspec $file:$score:$solve $testcase` where 
