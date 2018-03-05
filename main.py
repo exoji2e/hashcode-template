@@ -1,9 +1,10 @@
-#!/usr/bin/env pypy2
+#!/usr/bin/env pypy
 import argparse
 import logging as log
 from random import randint as ri
 from util import mkdir
 from os import remove
+from ConfigParser import ConfigParser
 
 
 # Runs scoring function and checks if score is improved.
@@ -27,7 +28,7 @@ def process(inp, out, seed, sc_fun):
     fmt = 'score: {:<20}'
     # write new output file.
     if sc > bsc:
-        log.critical((fmt + " BEST").format(sc))
+        log.critical((fmt + " BEST! Improved by: {}").format(sc, sc - bsc))
 
         with open(args.testcase + '.max', 'w') as f:
             f.write(str(sc))
@@ -52,34 +53,43 @@ def process(inp, out, seed, sc_fun):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('testcase')
-    parser.add_argument('-l', '--log', default='debug', help="set the log level")
+    parser.add_argument('-l', '--log', default='debug', choices=loglvls.keys(), help="set the log level")
     parser.add_argument('-s', '--seed', default=None, help="provide a seed for the rng")
     parser.add_argument('-n', '--iterations', type=int, default=1, help="number of iterations to run the solver")
     parser.add_argument('-i', '--ignore', action='store_true', help="do not fail on scoring errors")
-    parser.add_argument('--nsspec', action='store', default="solve:score:solve", help="specification of the module and functions used to solve and score")
+    parser.add_argument('-c', '--config', action='store', default='', help="config file")
+    parser.add_argument('--score', action='store', default='', help="set scoring config, format: key1=value1,key2=value2")
+    parser.add_argument('--solve', action='store', default='', help="set solve config, format: key1=value1,key2=value2")
     return parser.parse_args()
 
 
 def init_log():
-    loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
-    logfmt = '%(relativeCreated)6d {} %(filename)12s:%(lineno)-3d %(message)s'.format(args.testcase)
+    logfmt = config.get('log', 'log_fmt', 1).format(args.testcase)
     log.basicConfig(level=loglvls[args.log], format=logfmt)
 
 
+loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
 if __name__ == '__main__':
     args = get_args()
     args.testcase = args.testcase.replace('in/', '').replace('.in', '').replace('.max', '')
+    config = ConfigParser()
+    config.read(['main.cfg', args.config])
     init_log()
-    nsspec = args.nsspec.split(":")
-    sol_module = nsspec[0]
-    score_fun_name = "score"
-    solve_fun_name = "solve"
-    if len(nsspec) > 2:
-        score_fun_name = nsspec[1]
-        solve_fun_name = nsspec[2]
 
-    sol = __import__(sol_module, globals(), locals(), [], 0)
-    sc_fn = getattr(sol, score_fun_name)
+    for k, v in (e.split('=') for e in args.score.split(',') if e):
+        config.set('score', k, v)
+
+    for k, v in (e.split('=') for e in args.solve.split(',') if e):
+        config.set('solve', k, v)
+
+    score_module = config.get('score', 'module')
+    solve_module = config.get('solve', 'module')
+    score_fun_name = config.get('score', 'function')
+    solve_fun_name = config.get('solve', 'function')
+
+    sol = __import__(solve_module, globals(), locals(), [], 0)
+    sc = __import__(score_module, globals(), locals(), [], 0)
+    sc_fn = getattr(sc, score_fun_name)
     sol_fn = getattr(sol, solve_fun_name)
 
     with open('in/' + args.testcase + '.in') as f:
