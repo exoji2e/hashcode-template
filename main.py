@@ -53,7 +53,7 @@ def process(inp, out, seed, sc_fun):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('testcase')
-    parser.add_argument('-l', '--log', default='debug', help="set the log level")
+    parser.add_argument('-l', '--log', default='debug', choices=loglvls.keys(), help="set the log level")
     parser.add_argument('-s', '--seed', default=None, help="provide a seed for the rng")
     parser.add_argument('-n', '--iterations', type=int, default=1, help="number of iterations to run the solver")
     parser.add_argument('-i', '--ignore', action='store_true', help="do not fail on scoring errors")
@@ -64,17 +64,17 @@ def get_args():
 
 
 def init_log():
-    loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
-    logfmt = '%(relativeCreated)6d {} %(filename)12s:%(lineno)-3d %(message)s'.format(args.testcase)
+    logfmt = config.get('log', 'log_fmt', 1).format(args.testcase)
     log.basicConfig(level=loglvls[args.log], format=logfmt)
 
 
+loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
 if __name__ == '__main__':
     args = get_args()
     args.testcase = args.testcase.replace('in/', '').replace('.in', '').replace('.max', '')
-    init_log()
     config = ConfigParser()
     config.read(['main.cfg', args.config])
+    init_log()
 
     for k, v in (e.split('=') for e in args.score.split(',') if e):
         config.set('score', k, v)
