@@ -28,7 +28,7 @@ def process(inp, out, seed, sc_fun):
     fmt = 'score: {:<20}'
     # write new output file.
     if sc > bsc:
-        log.critical((fmt + " BEST").format(sc))
+        log.critical((fmt + " BEST! Improved by: {}").format(sc, sc - bsc))
 
         with open(args.testcase + '.max', 'w') as f:
             f.write(str(sc))
@@ -84,8 +84,8 @@ if __name__ == '__main__':
 
     score_module = config.get('score', 'module')
     solve_module = config.get('solve', 'module')
-    score_fun_name = config.get('solve', 'function')
-    solve_fun_name = config.get('score', 'function')
+    score_fun_name = config.get('score', 'function')
+    solve_fun_name = config.get('solve', 'function')
 
     sol = __import__(solve_module, globals(), locals(), [], 0)
     sc = __import__(score_module, globals(), locals(), [], 0)
