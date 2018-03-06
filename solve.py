@@ -1,4 +1,3 @@
-#!/usr/bin/env pypy2
 import argparse
 import random
 

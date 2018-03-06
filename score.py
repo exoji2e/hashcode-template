@@ -1,5 +1,9 @@
-import glob
+#!/usr/bin/env pypy
+from glob import glob
 import argparse
+import re
+from util import path, update_config, get_function, process, clean_max
+from ConfigParser import ConfigParser
 
 
 def show(out):
@@ -21,41 +25,52 @@ def get_args():
     parser.add_argument('inp', nargs='?')
     parser.add_argument('ans', nargs='?')
     parser.add_argument('-s', action='store_true', help="show")
+    parser.add_argument('--rescore', action='store_true', help="Rescore all ans files in ans/ and copy the best to submission")
+    parser.add_argument('-c', '--config', action='store', default='', help="config file")
+    parser.add_argument('--score', action='store', default='', help="set scoring config, format: key1=value1,key2=value2")
     return parser.parse_args()
 
 
 def ans2in(ans):
-    return ans.replace('.ans', '.in').replace('submission/', 'in/')
+    pth = path(ans)
+    m = fname_re.match(pth.name)
+
+    return (m.group(1) if m else path(ans).name).join(in_f)
 
 
-def in2ans(inp):
-    return inp.replace('.in', '.ans').replace('in/', 'submission/')
-
+sub_f = ('submission/', '.ans')
+ans_f = ('ans/', '.ans')
+in_f = ('in/', '.in')
+fname_re = re.compile(r'([A-Za-z0-9_]+)_(\d+)_(\d+|None)')
 
 if __name__ == '__main__':
     args = get_args()
-    if not args or (not args.inp and not args.ans):
-        files = []
-        for ans in glob.glob('submission/*.ans'):
-            files.append((ans2in(ans), ans))
+    if args.rescore:
+        clean_max()
+    config = ConfigParser()
+    config.read(['main.cfg', args.config])
+    update_config(config, args.score)
+
+    sc_fn = get_function('score', config)
+
+    if not (args and (args.inp or args.ans)):
+        file_lst = glob('*'.join(ans_f if args.rescore else sub_f))
+        files = [(ans2in(ans), ans) for ans in file_lst]
     else:
         if not args.ans:
-            if '.ans' in args.inp:
-                args.ans = args.inp
-                args.inp = ans2in(args.ans)
-            elif '.in' in args.inp:
-                args.ans = in2ans(args.inp)
-            else:
-                args.inp = args.inp.replace('.max', '')
-                args.ans = 'submission/' + args.inp + '.ans'
-                args.inp = 'in/' + args.inp + '.in'
+            pth = path(args.inp)
+            args.inp = pth.name.join(in_f)
+            args.ans = pth.name.join(sub_f)
         files = [(args.inp, args.ans)]
 
     for inpf, ansf in files:
-        with open(inpf, 'r') as f:
-            inp = f.read()
-        with open(ansf, 'r') as f:
-            ans = f.read()
+        ipth, apth = path(inpf), path(ansf)
 
-        print('{} {}'.format(inpf, ansf))
-        print(score(inp, ans))
+        inp = ipth.read()
+        ans = apth.read()
+        case, seed = ipth.name, None
+        m = fname_re.match(apth.name)
+        if m:
+            seed = m.group(3)
+
+        process(inp, ans, seed, sc_fn, case)
