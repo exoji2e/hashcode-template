@@ -33,8 +33,8 @@ if __name__ == '__main__':
     config.read(['main.cfg', args.config])
     init_log()
 
-    update_config(config, args.score)
-    update_config(config, args.solve)
+    update_config(config, 'score', args.score)
+    update_config(config, 'solve', args.solve)
 
     sc_fn = get_function('score', config)
     sol_fn = get_function('solve', config)

@@ -30,9 +30,9 @@ def get_function(section, config):
     return getattr(module, fun_name)
 
 
-def update_config(config, update_str):
+def update_config(config, config_part, update_str):
     for k, v in (e.split('=') for e in update_str.split(',') if e):
-        config.set('score', k, v)
+        config.set(config_part, k, v)
 
 
 def path(fname):
