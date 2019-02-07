@@ -3,7 +3,10 @@ from glob import glob
 import argparse
 import re
 from util import path, update_config, get_function, process, clean_max
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 
 
 def show(out):
