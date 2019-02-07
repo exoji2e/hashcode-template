@@ -3,7 +3,10 @@ import argparse
 import logging as log
 from random import randint as ri
 from util import update_config, get_function, path, process
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 
 
 def get_args():
@@ -21,8 +24,8 @@ def get_args():
 
 
 def init_log():
-    logfmt = config.get('log', 'log_fmt', 1).format(testcase=args.testcase)
-    log.basicConfig(level=loglvls[args.log], format=logfmt)
+    fmt_str = '%(relativeCreated)6d {testcase} %(filename)12s:%(lineno)-3d %(message)s'
+    log.basicConfig(level=loglvls[args.log], format=fmt_str.format(testcase=args.testcase))
 
 
 loglvls = {'debug': log.DEBUG, 'info': log.INFO, 'warning': log.WARNING, 'error': log.ERROR, 'critical': log.CRITICAL}
