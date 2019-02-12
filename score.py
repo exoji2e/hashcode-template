@@ -13,6 +13,19 @@ def show(out):
     # TODO: Print the solution here
     print(out)
 
+def ni(itr):
+    return int(next(itr))
+
+def nl(itr):
+    return [int(v) for v in next(itr).split()]
+
+
+def parse(inp):
+    itr = (line for line in inp.split('\n'))
+    ns = argparse.Namespace()
+    # TODO: fill ns
+
+    return ns
 
 def score(inp, out):
     # TODO: implement

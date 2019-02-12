@@ -1,14 +1,6 @@
 import argparse
 import random
-
-
-def parse(inp):
-    # TODO: implement
-    itr = (map(int, li.split()) for li in inp.split('\n'))
-    r, c = next(itr)
-
-    return argparse.Namespace(r=r, c=c)
-
+from score import parse
 
 def solve(seed, inp, log):
     # TODO: Solve the problem
