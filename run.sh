@@ -1,7 +1,6 @@
 #!/bin/bash
 for f in in/*.in; do
-    name=$(echo $f | sed "s/in//g" | sed "s/[\.\/]//g")
-    echo $name
-    pypy main.py $name
+    echo $f
+    pypy main.py $f
 done
 pypy sum_score.py
