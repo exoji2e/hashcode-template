@@ -33,7 +33,7 @@ if __name__ == '__main__':
     args = get_args()
     args.testcase = path(args.testcase).name
     config = ConfigParser()
-    config.read(['main.cfg', args.config])
+    config.read(['default.cfg', 'main.cfg', args.config])
     init_log()
 
     update_config(config, 'score', args.score)
