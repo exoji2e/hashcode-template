@@ -71,7 +71,7 @@ if __name__ == '__main__':
         clean_max()
     config = ConfigParser()
     config.read(['main.cfg', args.config])
-    update_config(config, args.score)
+    update_config(config, 'score', args.score)
 
     sc_fn = get_function('score', config)
 
