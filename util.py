@@ -97,7 +97,7 @@ def process(inp, out, seed, sc_fun, testcase, ignore=False, force=False):
         logging.critical((fmt + " BEST! Improved by: {}").format(sc, sc - bsc))
 
         with open(testcase + '.max', 'w') as f:
-            f.write(str(sc))
+            f.write('{}\n'.format(sc))
     else:
         logging.warn(fmt.format(sc))
 
