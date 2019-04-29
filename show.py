@@ -1,3 +1,4 @@
+#!/usr/bin/env pypy
 import argparse
 import random
 from score import parse, nl, ni
