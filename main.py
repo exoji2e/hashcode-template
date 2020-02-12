@@ -2,7 +2,7 @@
 import argparse
 import logging as log
 from random import randint as ri
-from util import update_config, get_function, path, process
+from util import update_config, get_function, path, process, get_ans_fn
 try:
     from ConfigParser import ConfigParser
 except:
@@ -40,13 +40,14 @@ if __name__ == '__main__':
     update_config(config, 'solve', args.solve)
 
     sc_fn = get_function('score', config)
-    sol_fn = get_function('solve', config)
 
     with open('in/' + args.testcase + '.in') as f:
         inp = f.read()
 
+    get_ans = get_ans_fn(config, inp, log)
+
     def run(seed):
-        ans = sol_fn(seed, inp, log)
+        ans = get_ans(seed)
         process(inp, ans, seed, sc_fn, args.testcase, ignore=args.ignore, force=args.force)
 
     if args.seed:

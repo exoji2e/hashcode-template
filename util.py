@@ -4,6 +4,7 @@ import logging
 from collections import namedtuple
 from os.path import basename, dirname, splitext, join
 from glob import glob
+import subprocess
 
 
 SimplePath = namedtuple('Path', ['dir', 'name', 'ext'])
@@ -78,6 +79,25 @@ def _get_best(name):
             return int(f.readline())
     except IOError:
         return 0
+
+def get_ans_fn(config, inp, log):
+    try:
+        run_cmd = config.get('solve', 'run')
+    except:
+        run_cmd = None
+    if run_cmd == None:
+        sol_fn = get_function('solve', config)
+        def get_ans(seed):
+            ans = sol_fn(seed, inp, log)
+            return ans
+    else:
+        def get_ans(seed):
+            p = subprocess.Popen(run_cmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            p.stdin.write(inp.encode('ascii'))
+            out, _ = p.communicate()
+            return out.decode('ascii')
+    return get_ans
+
 
 
 # Runs scoring function and checks if score is improved.
