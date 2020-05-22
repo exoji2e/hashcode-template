@@ -1,6 +1,7 @@
 import os
 import errno
 import logging
+import datetime
 from collections import namedtuple
 from os.path import basename, dirname, splitext, join
 from glob import glob
@@ -71,53 +72,84 @@ def _score(inp, out, sc_fun, ignore=False):
         logging.error(str(e))
         return 0
 
-
 def _get_best(name):
-    # Remember to edit if minimization-problem.
     try:
-        with open(name + '.max', 'r') as f:
-            return int(f.readline())
-    except IOError:
+        import json
+        j = json.loads(open('max.json', 'r').read())
+        return j[name]['score']
+    except:
+        # Edit if minimization problem
         return 0
 
-def get_ans_fn(config, inp, log):
+
+def _update_best(name, score, run_folder):
+    try:
+        import json
+        with open('max.json', 'r') as f:
+            j = json.loads(f.read())
+    except:
+        j = {}
+    if name not in j:
+        j[name] = {}
+    j[name]['score'] = score
+    j[name]['folder'] = run_folder
+    f = open('max.json', 'w')
+    f.write(json.dumps(j))
+    f.close()
+
+
+def get_ans_fn(config, inp):
     try:
         run_cmd = config.get('solve', 'run')
     except:
         run_cmd = None
     if run_cmd == None:
         sol_fn = get_function('solve', config)
-        def get_ans(seed):
-            ans = sol_fn(seed, inp, log)
+        def get_ans(solve_args):
+            ans = sol_fn(inp, solve_args)
             return ans
     else:
-        def get_ans(seed):
+        def get_ans(solve_args):
             p = subprocess.Popen(run_cmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             p.stdin.write(inp.encode('ascii'))
             out, _ = p.communicate()
             return out.decode('ascii')
     return get_ans
 
+def setup_run_folder(argv, config):
+    now = str(datetime.datetime.now()).replace(' ', 'T').replace(':','-')
+    folder = 'runs/{}'.format(now)
+    mkdir(folder)
+
+    open('{}/cmd.sh'.format(folder), 'w').write(' '.join(argv) + '\n')
+    
+    module = config.get('solve', 'module')
+    module_path = module.replace('.', '/') + '.py'
+    os.system('cp {} {}/'.format(module_path, folder))
+
+    return folder
+
+def save_tmp_ans(folder, testcase, ans_id, ans):
+    open('{}/{}_{}.ans'.format(folder, testcase, ans_id), 'w').write(ans)
 
 
-# Runs scoring function and checks if score is improved.
-def process(inp, out, seed, sc_fun, testcase, ignore=False, force=False):
-
+def process(inp, out, solve_args, sc_fun):
+    testcase = solve_args['testcase']
+    folder = solve_args['folder']
     bsc = _get_best(testcase)
 
-    sc = _score(inp, out, sc_fun, ignore=ignore)
+    sc = _score(inp, out, sc_fun)
 
     fmt = 'score: {:<20}'
-    if sc > bsc or force:
-        fname = fname_fmt.format(testcase=testcase, score=sc, seed=seed)
+    fname = fname_fmt.format(testcase=testcase, score=sc, seed=solve_args['seed'])
+    _save_ans(fname, folder, out)
+    if sc > bsc:
         _save_ans(fname, 'ans', out)
         _save_ans(testcase, 'submission', out)
 
     if sc > bsc:
         logging.critical((fmt + " BEST! Improved by: {}").format(sc, sc - bsc))
-
-        with open(testcase + '.max', 'w') as f:
-            f.write('{}\n'.format(sc))
+        _update_best(testcase, sc, folder)
     else:
         logging.warn(fmt.format(sc))
 

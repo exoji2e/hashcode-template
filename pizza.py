@@ -49,8 +49,8 @@ def ing(r, ns):
     return t, area(r) - t
 
 
-def solve(seed, inp, log):
-    random.seed(seed)
+def solve(inp, args):
+    random.seed(args['seed'])
     ns = parse(inp)
     rects = []
     for x1 in range(0, ns.r):
