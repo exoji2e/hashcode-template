@@ -1,4 +1,5 @@
 import os
+import sys
 import errno
 import logging
 import datetime
@@ -24,11 +25,20 @@ class Path(SimplePath):
         os.rename(str(self), str(new_path))
         return new_path
 
+def sanitize_module_name(module_name):
+    if module_name.endswith('.py'):
+        module_name = module_name[:-3]
+    module_name = module_name.replace('/', '.')
+    return module_name
+
 
 def get_function(section, config):
     module_name = config.get(section, 'module')
+    module_name = sanitize_module_name(module_name)
     fun_name = config.get(section, 'function')
-    module = __import__(module_name, globals(), locals(), [], 0)
+
+    _ = __import__(module_name, globals(), locals(), [], 0)
+    module = sys.modules[module_name]
     return getattr(module, fun_name)
 
 
@@ -123,8 +133,10 @@ def setup_run_folder(argv, config):
 
     open('{}/cmd.sh'.format(folder), 'w').write(' '.join(argv) + '\n')
     
-    module = config.get('solve', 'module')
-    module_path = module.replace('.', '/') + '.py'
+    module_name = config.get('solve', 'module')
+    if module_name.endswith('.py'):
+        module_name = module_name[:-3]
+    module_path = module_name.replace('.', '/') + '.py'
     os.system('cp {} {}/'.format(module_path, folder))
 
     return folder
