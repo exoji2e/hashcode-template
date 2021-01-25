@@ -2,5 +2,5 @@
 for f in in/*.in; do
     echo '========================================'
     echo $f
-    pypy show.py $f
+    pypy3 show.py $f
 done

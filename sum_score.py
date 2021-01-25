@@ -1,4 +1,4 @@
-#!/bin/python
+#!/user/bin/env pypy3
 try:
     import json
     j = json.loads(open('max.json', 'r').read())

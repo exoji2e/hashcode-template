@@ -1,4 +1,4 @@
-#!/usr/bin/env pypy
+#!/usr/bin/env pypy3
 import argparse, sys
 import logging as log
 from random import randint as ri

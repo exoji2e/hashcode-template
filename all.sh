@@ -1,6 +1,6 @@
 #!/bin/bash
 for f in in/*.in; do
     echo $f
-    pypy main.py $f
+    pypy3 main.py $f
 done
-pypy sum_score.py
+pypy3 sum_score.py
