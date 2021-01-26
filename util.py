@@ -7,6 +7,7 @@ from collections import namedtuple
 from os.path import basename, dirname, splitext, join
 from glob import glob
 import subprocess
+from importlib import import_module
 
 
 SimplePath = namedtuple('Path', ['dir', 'name', 'ext'])
@@ -37,8 +38,7 @@ def get_function(section, config):
     module_name = sanitize_module_name(module_name)
     fun_name = config.get(section, 'function')
 
-    _ = __import__(module_name, globals(), locals(), [], 0)
-    module = sys.modules[module_name]
+    module = import_module(module_name)
     return getattr(module, fun_name)
 
 
