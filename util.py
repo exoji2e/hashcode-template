@@ -8,6 +8,7 @@ from os.path import basename, dirname, splitext, join
 from glob import glob
 import subprocess
 from importlib import import_module
+from parser import parse2json
 
 
 SimplePath = namedtuple('Path', ['dir', 'name', 'ext'])
@@ -121,7 +122,12 @@ def get_ans_fn(config, inp):
     else:
         def get_ans(solve_args):
             p = subprocess.Popen(run_cmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            p.stdin.write(inp.encode('ascii'))
+            pass_inp = config['solve'].get('pass_input')
+            if pass_inp == 'json':
+                inp_blob = parse2json(inp)
+            else:
+                inp_blob = inp
+            p.stdin.write(inp_blob.encode('ascii'))
             out, _ = p.communicate()
             return out.decode('ascii')
     return get_ans

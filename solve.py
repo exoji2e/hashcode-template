@@ -1,6 +1,6 @@
 import argparse
 import random
-from score import parse
+from parser import parse
 
 # inp is an input file as a single string
 # return your output as a string
