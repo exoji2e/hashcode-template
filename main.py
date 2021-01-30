@@ -34,7 +34,7 @@ python3 main.py --solve module=solve_greedy.py --solve_args K=1,N=10 --all
         )
     parser.add_argument('testcase', nargs='?', default=None)
     parser.add_argument('-a', '--all', action='store_true', help='run all input files located inside folder \'in/\'')
-    parser.add_argument('-l', '--log', default='debug', choices=loglvls.keys(), help="set the log level")
+    parser.add_argument('-l', '--log', default='info', choices=loglvls.keys(), help="set the log level")
     parser.add_argument('-s', '--seed', default=None, help="provide a seed for the rng")
     parser.add_argument('-n', '--iterations', type=int, default=1, help="number of iterations to run the solver")
     parser.add_argument('-c', '--config', action='store', default='', help="config file")
@@ -52,7 +52,24 @@ def init_log(testcase):
     for handler in log.root.handlers[:]:
         log.root.removeHandler(handler)
     fmt_str = '%(relativeCreated)6d {testcase:.3} %(filename).10s:%(lineno)-3d %(message)s'
-    log.basicConfig(level=loglvls[args.log], format=fmt_str.format(testcase=testcase))
+    log.basicConfig(
+        level=loglvls[args.log],
+        format=fmt_str.format(testcase=testcase)
+        )
+
+def setup_stdstreams(run_folder):
+    stdout = open('{}/stdout.log'.format(run_folder), 'w')
+    stderr = open('{}/stderr.log'.format(run_folder), 'w')
+    sys.stdout = Tie([sys.__stdout__, stdout])
+    sys.stderr = Tie([sys.__stderr__, stderr])
+    def tear_down():
+        stdout.close()
+        stderr.close()
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+    return tear_down
+
+
 
 def run_testcase(testcase, args):
     testcase = path(testcase).name
@@ -63,8 +80,11 @@ def run_testcase(testcase, args):
     update_config(config, 'solve', args.solve)
 
     sc_fn = get_function('score', config)
-
     run_folder = setup_run_folder(sys.argv, config)
+    init_log(testcase)
+    tear_down_streams = setup_stdstreams(run_folder)
+
+    log.debug(f'Running testcase {testcase}')
 
     with open('in/' + testcase + '.in') as f:
         inp = f.read()
@@ -76,12 +96,6 @@ def run_testcase(testcase, args):
     solve_args['log'] = log
     solve_args['testcase'] = testcase
     solve_args['folder'] = run_folder
-    stdout = open('{}/stdout.log'.format(run_folder), 'w')
-    stderr = open('{}/stderr.log'.format(run_folder), 'w')
-    sys.stdout = Tie([sys.__stdout__ , stdout])
-    sys.stderr = Tie([sys.__stderr__, stderr])
-
-    init_log(testcase)
 
     get_ans = get_ans_fn(config, inp)
 
@@ -90,20 +104,16 @@ def run_testcase(testcase, args):
         ans = get_ans(solve_args)
         process(inp, ans, solve_args_orig, sc_fn)
 
-    if args.seed:
-        log.info('seed: {}'.format(args.seed))
+    rounds = 1 if args.seed else args.iterations
+    for i in range(rounds):
+        seed = args.seed if args.seed else ri(0, 10**6 - 1)
+        log.debug('seed:  {:<6}, test#: {}'.format(seed, i))
         sa = dict(solve_args)
-        sa['iter'] = 0
-        sa['seed'] = args.seed
+        sa['iter'] = i
+        sa['seed'] = seed
         run(sa)
-    else:
-        for i in range(args.iterations):
-            seed = ri(0, 10**6 - 1)
-            log.info('seed:  {:<6}, test#: {}'.format(seed, i))
-            sa = dict(solve_args)
-            sa['iter'] = i
-            sa['seed'] = seed
-            run(sa)
+
+    tear_down_streams()
 
 
 

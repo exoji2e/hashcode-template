@@ -173,6 +173,7 @@ def process(inp, out, solve_args, sc_fun):
     bsc = _get_best(testcase)
 
     try:
+        logging.debug(f'Scoring output...')
         sc = _score(inp, out, sc_fun)
     except Exception as e:
         print('Scorer crashed!')
