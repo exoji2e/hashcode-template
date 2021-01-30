@@ -158,6 +158,15 @@ def process(inp, out, solve_args, sc_fun):
 
     sc = _score(inp, out, sc_fun)
 
+    def score2str(sc):
+        for pw, letter in [(10**9, 'G'), (10**6, 'M'), (10**3, 'K')]:
+            if sc >= pw:
+                return '{} ({:.2f}{})'.format(sc, sc/pw, letter)
+
+        return '{}'.format(sc)
+
+    sc_str = score2str(sc)
+
     fmt = 'score: {:<20}'
     fname = fname_fmt.format(testcase=testcase, score=sc, seed=solve_args['seed'])
     _save_ans(fname, folder, out)
@@ -166,10 +175,12 @@ def process(inp, out, solve_args, sc_fun):
         _save_ans(testcase, 'submission', out)
 
     if sc > bsc:
-        logging.critical((fmt + " BEST! Improved by: {}").format(sc, sc - bsc))
+        imp_sc = sc - bsc
+        imp_str = score2str(imp_sc)
+        logging.critical((fmt + " BEST! Improved by: {}").format(sc_str, imp_str))
         _update_best(testcase, sc, folder)
     else:
-        logging.warn(fmt.format(sc))
+        logging.warn(fmt.format(sc_str))
 
 
 fname_fmt = "{testcase}_{score}_{seed}"
