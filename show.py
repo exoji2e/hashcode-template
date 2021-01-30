@@ -1,7 +1,7 @@
 #!/usr/bin/env pypy
 import argparse
 import random
-from parser import parse, nl, ni
+from dataparser import parse, nl, ni
 import sys
 
 # ns is the namespace. 

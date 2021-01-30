@@ -8,7 +8,7 @@ from os.path import basename, dirname, splitext, join
 from glob import glob
 import subprocess
 from importlib import import_module
-from parser import parse2json
+from dataparser import parse2json
 
 
 SimplePath = namedtuple('Path', ['dir', 'name', 'ext'])

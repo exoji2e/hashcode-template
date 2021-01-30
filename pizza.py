@@ -21,7 +21,7 @@ def score(inp, out):
                 raise 'rectangles overlaps'
             used[x][y] = True
 
-    return sc
+    return sc*random.randint(1, 10**9)
 
 
 def area(r):

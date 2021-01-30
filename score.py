@@ -1,4 +1,4 @@
-from parser import *
+from dataparser import *
 
 # inp: the input file as a single string
 # out: the answer file produced by your solver, as a single string
