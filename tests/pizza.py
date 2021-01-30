@@ -18,10 +18,10 @@ def score(inp, out):
         sc += area(r)
         for x, y in coords(r):
             if used[x][y]:
-                raise 'rectangles overlaps'
+                raise ValueError('rectangles overlaps')
             used[x][y] = True
 
-    return sc*random.randint(1, 10**9)
+    return sc
 
 
 def area(r):

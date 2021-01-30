@@ -2,6 +2,7 @@ import os
 import sys
 import errno
 import logging
+import traceback
 import datetime
 from collections import namedtuple
 from os.path import basename, dirname, splitext, join
@@ -35,12 +36,18 @@ def sanitize_module_name(module_name):
 
 
 def get_function(section, config):
-    module_name = config.get(section, 'module')
-    module_name = sanitize_module_name(module_name)
+    orig_module_name = config.get(section, 'module')
+    module_name = sanitize_module_name(orig_module_name)
     fun_name = config.get(section, 'function')
+    try:
+        module = import_module(module_name)
+    except ModuleNotFoundError:
+        raise ValueError(f"[{section}]: Can't find module {module_name} -  original module text: {orig_module_name}")
+    try:
+        return getattr(module, fun_name)
+    except AttributeError:
+        raise ValueError(f"[{section}]: Can't find function {fun_name} in module {module_name}")
 
-    module = import_module(module_name)
-    return getattr(module, fun_name)
 
 
 def update_config(config, config_part, update_str):
@@ -150,37 +157,50 @@ def setup_run_folder(argv, config):
 def save_tmp_ans(folder, testcase, ans_id, ans):
     open('{}/{}_{}.ans'.format(folder, testcase, ans_id), 'w').write(ans)
 
+def score2str(sc):
+    def simple_sc_str(sc):
+        for pw, letter in [(10**9, 'G'), (10**6, 'M'), (10**3, 'K')]:
+            if sc >= pw:
+                return '({:.2f}{})'.format(sc/pw, letter)
+        return '({})'.format(sc)
+    return '{:>10} {:>10}'.format(sc, simple_sc_str(sc))
+
+
 
 def process(inp, out, solve_args, sc_fun):
     testcase = solve_args['testcase']
     folder = solve_args['folder']
     bsc = _get_best(testcase)
 
-    sc = _score(inp, out, sc_fun)
-
-    def score2str(sc):
-        for pw, letter in [(10**9, 'G'), (10**6, 'M'), (10**3, 'K')]:
-            if sc >= pw:
-                return '{} ({:.2f}{})'.format(sc, sc/pw, letter)
-
-        return '{}'.format(sc)
+    try:
+        sc = _score(inp, out, sc_fun)
+    except Exception as e:
+        print('Scorer crashed!')
+        traceback.print_exc()
 
     sc_str = score2str(sc)
 
-    fmt = 'score: {:<20}'
-    fname = fname_fmt.format(testcase=testcase, score=sc, seed=solve_args['seed'])
+    prev_sc_str = 'prev sc: {}'.format(score2str(bsc))
+    now_sc_str =  'now  sc: {}'.format(score2str(sc))
+    fname = fname_fmt.format(
+        testcase=testcase,
+        score=sc,
+        seed=solve_args['seed'])
+
+    logging.info(prev_sc_str)
+
     _save_ans(fname, folder, out)
     if sc > bsc:
         _save_ans(fname, 'ans', out)
         _save_ans(testcase, 'submission', out)
 
+
     if sc > bsc:
-        imp_sc = sc - bsc
-        imp_str = score2str(imp_sc)
-        logging.critical((fmt + " BEST! Improved by: {}").format(sc_str, imp_str))
+        extra = ' BEST! Improved by: {}'.format(score2str(sc - bsc))
+        logging.critical(now_sc_str + extra)
         _update_best(testcase, sc, folder)
     else:
-        logging.warn(fmt.format(sc_str))
+        logging.warn(now_sc_str)
 
 
 fname_fmt = "{testcase}_{score}_{seed}"

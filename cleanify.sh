@@ -5,7 +5,6 @@ function rm_nice {
         rm $1
     fi
 }
-rm_nice *pizza*
 rm_nice "in"/*pizza*
 rm_nice "max.json"
 for f in "in"/* ; do
