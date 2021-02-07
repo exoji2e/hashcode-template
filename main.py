@@ -80,7 +80,7 @@ def run_testcase(testcase, args):
     update_config(config, 'solve', args.solve)
 
     sc_fn = get_function('score', config)
-    run_folder = setup_run_folder(sys.argv, config)
+    run_folder = setup_run_folder(sys.argv, config, testcase)
     init_log(testcase)
     tear_down_streams = setup_stdstreams(run_folder)
 

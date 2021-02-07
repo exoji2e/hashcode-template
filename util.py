@@ -139,10 +139,13 @@ def get_ans_fn(config, inp):
             return out.decode('ascii')
     return get_ans
 
-def setup_run_folder(argv, config):
+def setup_run_folder(argv, config, testcase):
     now = str(datetime.datetime.now()).replace(' ', 'T').replace(':','-')
     folder = 'runs/{}'.format(now)
     mkdir(folder)
+
+    in_path = f'in/{testcase}.in'
+    os.symlink(f'../../{in_path}', f'{folder}/{testcase}.in')
 
     open('{}/cmd.sh'.format(folder), 'w').write(' '.join(argv) + '\n')
     
