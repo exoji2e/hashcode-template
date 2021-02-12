@@ -1,4 +1,5 @@
 #!/bin/bash
 mkdir -p submission
-zip submission/src.zip *.py
+touch max.json
+zip submission/src.zip *.py solvers/*.py max.json
 

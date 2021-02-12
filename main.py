@@ -2,7 +2,7 @@
 import argparse, sys
 import logging as log
 from random import randint as ri
-from util import update_config, get_function, path, process, get_ans_fn, setup_run_folder
+from util import update_config, get_function, path, process, get_ans_fn, setup_run_folder, sanitize_module_name
 import glob
 try:
     from ConfigParser import ConfigParser
@@ -96,6 +96,8 @@ def run_testcase(testcase, args):
     solve_args['log'] = log
     solve_args['testcase'] = testcase
     solve_args['folder'] = run_folder
+    orig_module_name = config.get('solve', 'module')
+    solve_args['module_name'] = sanitize_module_name(orig_module_name)
 
     get_ans = get_ans_fn(config, inp)
 

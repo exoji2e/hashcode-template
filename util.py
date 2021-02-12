@@ -105,7 +105,7 @@ def _create_best_run(testcase, score, run_folder):
     os.symlink('../{}'.format(run_folder), '{}/{}_{}'.format(best_runs, testcase, score))
 
 
-def _update_best(testcase, score, run_folder):
+def _update_best(testcase, score, run_folder, module_name):
     try:
         import json
         with open('max.json', 'r') as f:
@@ -116,6 +116,7 @@ def _update_best(testcase, score, run_folder):
         j[testcase] = {}
     j[testcase]['score'] = score
     j[testcase]['folder'] = run_folder
+    j[testcase]['module'] = module_name
     with open('max.json', 'w') as f:
         f.write(json.dumps(j))
     
@@ -210,7 +211,7 @@ def process(inp, out, solve_args, sc_fun):
     if sc > bsc:
         extra = ' BEST! Improved by: {}'.format(score2str(sc - bsc))
         logging.critical(now_sc_str + extra)
-        _update_best(testcase, sc, folder)
+        _update_best(testcase, sc, folder, solve_args['module_name'])
     else:
         logging.warn(now_sc_str)
 
