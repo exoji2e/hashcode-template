@@ -84,7 +84,7 @@ def run_testcase(testcase, args):
     init_log(testcase)
     tear_down_streams = setup_stdstreams(run_folder)
 
-    log.debug(f'Running testcase {testcase}')
+    log.debug('Running testcase {}'.format(testcase))
 
     with open('in/' + testcase + '.in') as f:
         inp = f.read()

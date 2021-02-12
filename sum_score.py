@@ -11,7 +11,7 @@ S = 0
 for name in sorted(j.keys()):
     v = j[name]['score']
     f = j[name]['folder']
-    pys = glob.glob(f'{f}/*.py')
+    pys = glob.glob('{}/*.py'.format(f))
     sol_name = ''
     if pys:
         sol_name = ' '.join(path(pyf).name for pyf in pys)

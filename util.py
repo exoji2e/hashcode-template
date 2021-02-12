@@ -42,11 +42,11 @@ def get_function(section, config):
     try:
         module = import_module(module_name)
     except ModuleNotFoundError:
-        raise ValueError(f"[{section}]: Can't find module {module_name} -  original module text: {orig_module_name}")
+        raise ValueError("[{}]: Can't find module {} -  original module text: {}".format(section, module_name, orig_module_name))
     try:
         return getattr(module, fun_name)
     except AttributeError:
-        raise ValueError(f"[{section}]: Can't find function {fun_name} in module {module_name}")
+        raise ValueError("[{}]: Can't find function {} in module {}".format(section, fun_name, module_name))
 
 
 
@@ -75,10 +75,10 @@ def clean_max():
 
 
 def _save_ans(fname, subdir, out):
-        mkdir(subdir)
-        latest = "{}/{}.ans".format(subdir, fname)
-        with open(latest, 'w') as f:
-            f.write(str(out))
+    mkdir(subdir)
+    latest = "{}/{}.ans".format(subdir, fname)
+    with open(latest, 'w') as f:
+        f.write(str(out))
 
 
 def _score(inp, out, sc_fun, ignore=False):
@@ -99,21 +99,29 @@ def _get_best(name):
         # Edit if minimization problem
         return 0
 
+def _create_best_run(testcase, score, run_folder):
+    best_runs = 'best_runs'
+    mkdir(best_runs)
+    os.symlink('../{}'.format(run_folder), '{}/{}_{}'.format(best_runs, testcase, score))
 
-def _update_best(name, score, run_folder):
+
+def _update_best(testcase, score, run_folder):
     try:
         import json
         with open('max.json', 'r') as f:
             j = json.loads(f.read())
     except:
         j = {}
-    if name not in j:
-        j[name] = {}
-    j[name]['score'] = score
-    j[name]['folder'] = run_folder
-    f = open('max.json', 'w')
-    f.write(json.dumps(j))
-    f.close()
+    if testcase not in j:
+        j[testcase] = {}
+    j[testcase]['score'] = score
+    j[testcase]['folder'] = run_folder
+    with open('max.json', 'w') as f:
+        f.write(json.dumps(j))
+    
+    _create_best_run(testcase, score, run_folder)
+    
+
 
 
 def get_ans_fn(config, inp):
@@ -144,8 +152,8 @@ def setup_run_folder(argv, config, testcase):
     folder = 'runs/{}'.format(now)
     mkdir(folder)
 
-    in_path = f'in/{testcase}.in'
-    os.symlink(f'../../{in_path}', f'{folder}/{testcase}.in')
+    in_path = 'in/{}.in'.format(testcase)
+    os.symlink('../../{}'.format(in_path), '{}/{}.in'.format(folder, testcase))
 
     open('{}/cmd.sh'.format(folder), 'w').write(' '.join(argv) + '\n')
     
@@ -176,9 +184,10 @@ def process(inp, out, solve_args, sc_fun):
     bsc = _get_best(testcase)
 
     try:
-        logging.debug(f'Scoring output...')
+        logging.debug('Scoring output...')
         sc = _score(inp, out, sc_fun)
     except Exception as e:
+        sc = 0
         print('Scorer crashed!')
         traceback.print_exc()
 
@@ -197,7 +206,6 @@ def process(inp, out, solve_args, sc_fun):
     if sc > bsc:
         _save_ans(fname, 'ans', out)
         _save_ans(testcase, 'submission', out)
-
 
     if sc > bsc:
         extra = ' BEST! Improved by: {}'.format(score2str(sc - bsc))
