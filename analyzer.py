@@ -4,8 +4,9 @@ from util import path
 from dataparser import *
 import json
 import glob, argparse
-try:     import matplotlib.pyplot as plt
-except:  pass
+import matplotlib
+matplotlib.use('TkAgg') # sudo pacman -S tk # sudo apt install python3-tk
+import matplotlib.pyplot as plt
 
 def analyze(testcase, inp, ans):
     ns = parse(inp)
