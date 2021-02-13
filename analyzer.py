@@ -4,6 +4,8 @@ from util import path
 from dataparser import *
 import json
 import glob, argparse
+try:     import matplotlib.pyplot as plt
+except:  pass
 
 def analyze(testcase, inp, ans):
     ns = parse(inp)

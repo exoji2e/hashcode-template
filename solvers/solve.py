@@ -1,5 +1,6 @@
 import argparse
 import random
+from collections import *
 from dataparser import parse
 
 # inp is an input file as a single string
