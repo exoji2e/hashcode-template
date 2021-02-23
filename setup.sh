@@ -6,7 +6,6 @@ function rm_nice {
     fi
 }
 rm_nice "in"/*pizza*
-rm_nice "max.json"
 for f in "in"/* ; do
     if [ ${f: -4} == ".txt" ] ; then
         mv $f "${f%.txt}.in"

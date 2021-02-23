@@ -27,7 +27,7 @@ Run a testinstance on the format `in/$testcase.in` with your own solver by:
 - `analyze.py` - easy access to the run folders and best run folder to analyze the output-file.
 - Bug in your scorer? Just remove `max.json` and rerun, now main.py will happliy overwrite the ans-files in the `submission` folder. If you accidentaly remove `max.json` you can recover your ans files form the `best_runs` folder or the `ans` folder.
 - `package.sh` create a zip folder with your solution
-- `cleanify.sh` removes `in/example_pizza.in`.
+- `setup.sh` removes `in/example_pizza.in` and creates a main.cfg.
 - Pass extra args to your solver with: `pypy3 main.py --solve_args N=10,M=Hello,X=-0.5` Filling the args-dict with `{"N" : "10", "M" : "Hello", "X" : "-0.5"}`.
 
 
