@@ -4,7 +4,7 @@ import sys
 import glob
 
 from dataparser import parse, nl, ni
-from util import path
+from util import path, get_in_file_content
 
 try:     import matplotlib.pyplot as plt
 except:  pass
@@ -40,8 +40,5 @@ if __name__=='__main__':
     tasks = get_tasks()
     
     for tc_name in tasks:
-        in_file_name = 'in/{}.in'.format(tc_name)
-        f = open(in_file_name)
-        inp = f.read()
-        f.close()
+        inp = get_in_file_content(tc_name)
         test(tc_name, inp)

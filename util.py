@@ -4,6 +4,8 @@ import errno
 import logging
 import traceback
 import datetime
+import shutil
+import pathlib as p
 from collections import namedtuple
 from os.path import basename, dirname, splitext, join
 from glob import glob
@@ -100,9 +102,9 @@ def _get_best(name):
         return 0
 
 def _create_best_run(testcase, score, run_folder):
-    best_runs = 'best_runs'
-    mkdir(best_runs)
-    os.symlink('../{}'.format(run_folder), '{}/{}_{}'.format(best_runs, testcase, score))
+    best_runs = p.Path('best_runs')
+    best_runs.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(p.Path(run_folder), best_runs / '{}_{}'.format(testcase, score))
 
 
 def _update_best(testcase, score, run_folder, module_name):
@@ -121,8 +123,16 @@ def _update_best(testcase, score, run_folder, module_name):
         f.write(json.dumps(j))
     
     _create_best_run(testcase, score, run_folder)
-    
 
+
+def get_in_file_content(path_or_name):
+    try:
+        tc = path(path_or_name).name
+        with open('in/{}.in'.format(tc)) as f:
+            return f.read()
+    except:
+        with open(path_or_name) as f:
+            return f.read()
 
 
 def get_ans_fn(config, inp):
