@@ -51,9 +51,22 @@ def get_function(section, config):
         raise ValueError("[{}]: Can't find function {} in module {}".format(section, fun_name, module_name))
 
 
+def parse_kvs_arg(arg, name, example):
+    D = {}
+    items = arg.split(',')
+    for item in items:
+        if len(item) == 0: continue
+        kv = item.split('=')
+        if len(kv) != 2:
+            raise ValueError(f'''Wrong arg --{name} format.
+Got:\t\t"--{name} {arg}"
+Valid Example:\t"--{name} {example}"''')
+        k, v = kv
+        D[k] = v
+    return D
 
-def update_config(config, config_part, update_str):
-    for k, v in (e.split('=') for e in update_str.split(',') if e):
+def update_config(config, config_part, update_dict):
+    for k, v in update_dict.items():
         config.set(config_part, k, v)
 
 

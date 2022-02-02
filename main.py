@@ -2,7 +2,7 @@
 import argparse, sys
 import logging as log
 from random import randint as ri
-from util import update_config, get_function, path, process, get_ans_fn, setup_run_folder, sanitize_module_name, get_in_file_content
+from util import update_config, get_function, path, process, get_ans_fn, setup_run_folder, sanitize_module_name, get_in_file_content, parse_kvs_arg
 import glob
 try:
     from ConfigParser import ConfigParser
@@ -44,8 +44,13 @@ python3 main.py --solve module=solve_greedy.py --solve_args K=1,N=10 --all
     args = parser.parse_args()
     if args.testcase == None and not args.all:
         parser.error('Either provide testcase or specify all with \'--all\'')
+    try:
+        args.solve_args = parse_kvs_arg(args.solve_args, 'solve_args', 'N=10,K=-2')
+        args.solve = parse_kvs_arg(args.solve, 'solve', 'module=solvers/solve.py')
+        args.score = parse_kvs_arg(args.score, 'score', 'module=score.py')
+    except ValueError as e:
+        parser.error(e)
     return args
-
 
 
 def init_log(testcase):
@@ -87,11 +92,7 @@ def run_testcase(testcase, args):
     log.debug('Running testcase {}'.format(testcase))
 
     inp = get_in_file_content(testcase)
-    solve_args = {}
-    for kv in args.solve_args.split(','):
-        if '=' in kv:
-            k, v = kv.split('=')
-            solve_args[k] = v
+    solve_args = args.solve_args
     solve_args['log'] = log
     solve_args['testcase'] = testcase
     solve_args['folder'] = run_folder
