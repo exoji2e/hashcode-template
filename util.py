@@ -5,13 +5,15 @@ import logging
 import traceback
 import datetime
 import shutil
+import pickle
 import pathlib as p
 from collections import namedtuple
 from os.path import basename, dirname, splitext, join
 from glob import glob
 import subprocess
 from importlib import import_module
-from dataparser import parse2json
+#from dataparser import parse2json
+import dataparser
 
 
 SimplePath = namedtuple('Path', ['dir', 'name', 'ext'])
@@ -163,7 +165,7 @@ def get_ans_fn(config, inp):
             p = subprocess.Popen(run_cmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             pass_inp = config['solve'].get('pass_input')
             if pass_inp == 'json':
-                inp_blob = parse2json(inp)
+                inp_blob = dataparser.parse2json(inp)
             else:
                 inp_blob = inp
             p.stdin.write(inp_blob.encode('ascii'))
@@ -240,3 +242,18 @@ def process(inp, out, solve_args, sc_fun):
 
 
 fname_fmt = "{testcase}_{score}_{seed}"
+
+# util.getCachedObj('preCalcGraph', args['testcase'], lambda: calcGraph()) 
+def getCachedObj(name, tc, calc_fn, overwrite=False):
+    if not tc:
+        return calc_fn()
+    folder = 'pickledObjects'
+    mkdir(folder)
+    fName = f'{folder}/{name}_{tc}.pkl'
+    if not overwrite and os.path.exists(fName):
+        pklBts = open(fName, 'rb').read()
+        return pickle.loads(pklBts)
+    else:
+        obj = calc_fn()
+        open(fName, 'wb').write(pickle.dumps(obj))
+        return obj

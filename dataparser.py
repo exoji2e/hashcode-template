@@ -2,6 +2,7 @@ import argparse
 import json
 from collections import *
 from pathlib import Path
+import util
 
 def ni(itr):
     return int(next(itr))
@@ -17,6 +18,9 @@ def parse(inp):
     # TODO: fill ns
 
     return ns
+
+def parse_cached(inp, tc, overwrite=False):
+    return util.getCachedObj('inputNameSpace', tc, lambda: parse(inp), overwrite)
 
 class FlexibleEncoder(json.JSONEncoder):
     def default(self, obj):
